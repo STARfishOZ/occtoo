@@ -20,8 +20,6 @@ const App = () => (
             </a>
         </header>
         <VirtualScroll />
-
-        {/*<ReactQueryDevtools initialIsOpen />*/}
     </div>
 )
 

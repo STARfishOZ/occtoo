@@ -40,11 +40,22 @@
   display: grid;
   height: calc(100vh - 240px);
   overflow: auto;
+  position: relative;
 }
 
 .row {
   height: 40px;
   border-bottom: 1px solid #000;
-  display: flex;
+  display: grid;
   align-items: center;
+  grid-auto-flow: column;
+  gap: 20px;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.row span {
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

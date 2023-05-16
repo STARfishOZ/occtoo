@@ -16,21 +16,22 @@ const VirtualScroll = (): JSX.Element => {
         isFetchingNextPage,
         fetchNextPage,
         hasNextPage,
-    } = getPicsListInfiniteQuery(10);
+    } = getPicsListInfiniteQuery(5);
 
     const allRows = isSuccess ? data?.pages.flatMap(rows => rows as ListItem) : []
 
     const parentRef = useRef(null);
 
     const rowVirtualizer = useVirtualizer({
-        count: hasNextPage ? allRows.length + 10 : allRows.length,
+        count: hasNextPage ? allRows.length + 1 : allRows.length,
         getScrollElement: () => parentRef.current,
         estimateSize: () => 100,
-        overscan: 5,
+        overscan: 3,
     })
 
     useEffect(() => {
-        const [lastItem] = [...rowVirtualizer.getVirtualItems()].reverse()
+        const items = [...rowVirtualizer.getVirtualItems()]
+        const lastItem = items[items.length - 1];
 
         if (!lastItem) {
             return
@@ -61,39 +62,28 @@ const VirtualScroll = (): JSX.Element => {
                 ref={parentRef}
                 className="table"
             >
-                <div
-                    style={{
-                        height: `${rowVirtualizer.getTotalSize()}px`,
-                        width: '100%',
-                        position: 'relative',
-                    }}
-                >
-                    {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                        const isLoaderRow = virtualRow.index > allRows.length - 1
-                        const item = allRows[virtualRow.index]
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                    const isLoaderRow = virtualRow.index > allRows.length - 1
+                    const item = allRows[virtualRow.index]
 
-                        return (
-                            <div
-                                key={item?.id ?? virtualRow.index}
-                                className="row"
-                                style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
-                                    height: `${virtualRow.size}px`,
-                                    transform: `translateY(${virtualRow.start}px)`,
-                                }}
-                            >
-                                {isLoaderRow
-                                    ? hasNextPage
-                                        ? 'Loading more...'
-                                        : 'Nothing more to load'
-                                    : <RowItem key={item.id} rowData={item}></RowItem>}
-                            </div>
-                        )
-                    })}
-                </div>
+                    return (
+                        <div
+                            key={item?.id ?? virtualRow.index}
+                            className="row"
+                            style={{
+                                gridTemplateColumns: `repeat(${item ? Object.keys(item).length : null}, 150px)`,
+                                height: `${virtualRow.size}px`,
+                                transform: `translateY(${virtualRow.start}px)`,
+                            }}
+                        >
+                            {isLoaderRow
+                                ? hasNextPage
+                                    ? 'Loading more...'
+                                    : 'Nothing more to load'
+                                : <RowItem key={item.id} rowData={item}></RowItem>}
+                        </div>
+                    )
+                })}
             </div>
             <div>
                 {isFetching && !isFetchingNextPage ? 'Background Updating...' : null}
